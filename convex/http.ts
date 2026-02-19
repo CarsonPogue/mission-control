@@ -73,6 +73,36 @@ http.route({
   method: "OPTIONS",
   handler: httpAction(async () => new Response(null, { status: 204, headers: corsHeaders })),
 });
+http.route({
+  path: "/api/tasks/remove",
+  method: "OPTIONS",
+  handler: httpAction(async () => new Response(null, { status: 204, headers: corsHeaders })),
+});
+http.route({
+  path: "/api/memory/remove",
+  method: "OPTIONS",
+  handler: httpAction(async () => new Response(null, { status: 204, headers: corsHeaders })),
+});
+http.route({
+  path: "/api/calendar/list",
+  method: "OPTIONS",
+  handler: httpAction(async () => new Response(null, { status: 204, headers: corsHeaders })),
+});
+http.route({
+  path: "/api/calendar/remove",
+  method: "OPTIONS",
+  handler: httpAction(async () => new Response(null, { status: 204, headers: corsHeaders })),
+});
+http.route({
+  path: "/api/content/list",
+  method: "OPTIONS",
+  handler: httpAction(async () => new Response(null, { status: 204, headers: corsHeaders })),
+});
+http.route({
+  path: "/api/content/remove",
+  method: "OPTIONS",
+  handler: httpAction(async () => new Response(null, { status: 204, headers: corsHeaders })),
+});
 
 // ── TASKS ────────────────────────────────────────
 
@@ -105,6 +135,16 @@ http.route({
   }),
 });
 
+http.route({
+  path: "/api/tasks/remove",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await request.json();
+    await ctx.runMutation(api.tasks.remove, body);
+    return jsonResponse({ success: true });
+  }),
+});
+
 // ── MEMORY ───────────────────────────────────────
 
 http.route({
@@ -123,6 +163,16 @@ http.route({
   handler: httpAction(async (ctx) => {
     const memories = await ctx.runQuery(api.memory.list);
     return jsonResponse(memories);
+  }),
+});
+
+http.route({
+  path: "/api/memory/remove",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await request.json();
+    await ctx.runMutation(api.memory.remove, body);
+    return jsonResponse({ success: true });
   }),
 });
 
@@ -160,11 +210,30 @@ http.route({
 });
 
 http.route({
+  path: "/api/calendar/list",
+  method: "GET",
+  handler: httpAction(async (ctx) => {
+    const events = await ctx.runQuery(api.calendar.list);
+    return jsonResponse(events);
+  }),
+});
+
+http.route({
   path: "/api/calendar/update",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     const body = await request.json();
     await ctx.runMutation(api.calendar.update, body);
+    return jsonResponse({ success: true });
+  }),
+});
+
+http.route({
+  path: "/api/calendar/remove",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await request.json();
+    await ctx.runMutation(api.calendar.remove, body);
     return jsonResponse({ success: true });
   }),
 });
@@ -182,11 +251,30 @@ http.route({
 });
 
 http.route({
+  path: "/api/content/list",
+  method: "GET",
+  handler: httpAction(async (ctx) => {
+    const items = await ctx.runQuery(api.content.list);
+    return jsonResponse(items);
+  }),
+});
+
+http.route({
   path: "/api/content/update",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     const body = await request.json();
     await ctx.runMutation(api.content.update, body);
+    return jsonResponse({ success: true });
+  }),
+});
+
+http.route({
+  path: "/api/content/remove",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await request.json();
+    await ctx.runMutation(api.content.remove, body);
     return jsonResponse({ success: true });
   }),
 });

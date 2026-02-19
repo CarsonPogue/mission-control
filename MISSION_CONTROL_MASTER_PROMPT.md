@@ -18,17 +18,23 @@ All endpoints accept JSON, return JSON, and have full CORS support.
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
+| `/api/tasks/list` | GET | List all tasks |
 | `/api/tasks/create` | POST | Create a new task |
 | `/api/tasks/update` | POST | Update an existing task |
-| `/api/tasks/list` | GET | List all tasks |
-| `/api/memory/create` | POST | Create a memory entry |
+| `/api/tasks/remove` | POST | Delete a task `{ "id": "..." }` |
 | `/api/memory/list` | GET | List all memories |
-| `/api/agents/status` | POST | Update an agent's status |
+| `/api/memory/create` | POST | Create a memory entry |
+| `/api/memory/remove` | POST | Delete a memory `{ "id": "..." }` |
 | `/api/agents/list` | GET | List all agents |
+| `/api/agents/status` | POST | Update an agent's status |
+| `/api/calendar/list` | GET | List all calendar events |
 | `/api/calendar/create` | POST | Create a calendar event |
 | `/api/calendar/update` | POST | Update a calendar event |
+| `/api/calendar/remove` | POST | Delete a calendar event `{ "id": "..." }` |
+| `/api/content/list` | GET | List all content items |
 | `/api/content/create` | POST | Create a content item |
 | `/api/content/update` | POST | Update a content item |
+| `/api/content/remove` | POST | Delete a content item `{ "id": "..." }` |
 
 ### 2. Convex Client (for frontend components)
 
