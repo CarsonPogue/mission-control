@@ -15,19 +15,20 @@ export const search = query({
     agentId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    let q = ctx.db
+    const results = await ctx.db
       .query("memories")
       .withSearchIndex("search_memories", (q) => {
         let search = q.search("content", args.query);
-        if (args.tag) {
-          search = search.eq("tags", args.tag as unknown as string[]);
-        }
         if (args.agentId) {
           search = search.eq("agentId", args.agentId);
         }
         return search;
-      });
-    return await q.collect();
+      })
+      .collect();
+    if (args.tag) {
+      return results.filter((m) => m.tags.includes(args.tag!));
+    }
+    return results;
   },
 });
 

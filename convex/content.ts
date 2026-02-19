@@ -23,6 +23,7 @@ export const create = mutation({
     ),
     script: v.optional(v.string()),
     notes: v.optional(v.string()),
+    thumbnailUrl: v.optional(v.string()),
     assignedAgentId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -32,6 +33,7 @@ export const create = mutation({
       stage: args.stage ?? "idea",
       script: args.script,
       notes: args.notes,
+      thumbnailUrl: args.thumbnailUrl,
       assignedAgentId: args.assignedAgentId,
       createdAt: now,
       updatedAt: now,

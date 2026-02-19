@@ -11,6 +11,17 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,12 +45,15 @@ export default function MemoryModal({
   memory?: Doc<"memories"> | null;
 }) {
   const createMemory = useMutation(api.memory.create);
+  const updateMemory = useMutation(api.memory.update);
+  const deleteMemory = useMutation(api.memory.remove);
   const agents = useQuery(api.agents.list);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [tagsStr, setTagsStr] = useState("");
   const [agentId, setAgentId] = useState("__manual__");
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (memory) {
@@ -47,11 +61,13 @@ export default function MemoryModal({
       setContent(memory.content);
       setTagsStr(memory.tags.join(", "));
       setAgentId(memory.agentId ?? "__manual__");
+      setIsEditing(false);
     } else {
       setTitle("");
       setContent("");
       setTagsStr("");
       setAgentId("__manual__");
+      setIsEditing(false);
     }
   }, [memory, open]);
 
@@ -61,16 +77,33 @@ export default function MemoryModal({
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
-    await createMemory({
-      title,
-      content,
-      tags,
-      agentId: agentId && agentId !== "__manual__" ? agentId : undefined,
-    });
+
+    if (memory && isEditing) {
+      await updateMemory({
+        id: memory._id,
+        title,
+        content,
+        tags,
+      });
+    } else if (!memory) {
+      await createMemory({
+        title,
+        content,
+        tags,
+        agentId: agentId && agentId !== "__manual__" ? agentId : undefined,
+      });
+    }
     onClose();
   };
 
-  const isViewing = !!memory;
+  const handleDelete = async () => {
+    if (!memory) return;
+    await deleteMemory({ id: memory._id });
+    onClose();
+  };
+
+  const isViewing = !!memory && !isEditing;
+  const isCreate = !memory;
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
@@ -80,14 +113,14 @@ export default function MemoryModal({
             className="text-[var(--text-primary)]"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            {isViewing ? memory.title : "Add Memory"}
+            {isCreate ? "Add Memory" : isEditing ? "Edit Memory" : memory?.title}
           </DialogTitle>
         </DialogHeader>
 
         <Separator className="bg-[var(--glass-border)]" />
 
         <div className="flex flex-col gap-4">
-          {isViewing ? (
+          {isViewing && memory ? (
             <>
               <div
                 className="text-sm leading-relaxed whitespace-pre-wrap rounded-[var(--radius-md)] px-4 py-3"
@@ -116,6 +149,31 @@ export default function MemoryModal({
                   </span>
                 ))}
               </div>
+              <Separator className="bg-[var(--glass-border)]" />
+              <DialogFooter className="flex gap-2">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">Delete</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-[var(--bg-surface)] border-[var(--glass-border)]">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-[var(--text-primary)]">Delete memory?</AlertDialogTitle>
+                      <AlertDialogDescription className="text-[var(--text-secondary)]">
+                        This will permanently delete &quot;{memory.title}&quot;. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete} className="bg-[var(--accent-danger)] text-white hover:bg-[var(--accent-danger)]/90">
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <Button variant="outline" onClick={() => setIsEditing(true)}>
+                  Edit
+                </Button>
+              </DialogFooter>
             </>
           ) : (
             <>
@@ -168,39 +226,41 @@ export default function MemoryModal({
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
-                <Label
-                  className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-muted)]"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  Source Agent
-                </Label>
-                <Select value={agentId} onValueChange={setAgentId}>
-                  <SelectTrigger
-                    className="w-full bg-[var(--bg-elevated)] border-[var(--glass-border)] text-[var(--text-primary)]"
-                    style={{ fontFamily: "var(--font-body)" }}
+              {isCreate && (
+                <div className="flex flex-col gap-2">
+                  <Label
+                    className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-muted)]"
+                    style={{ fontFamily: "var(--font-display)" }}
                   >
-                    <SelectValue placeholder="Manual entry" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[var(--bg-elevated)] border-[var(--glass-border)]">
-                    <SelectItem value="__manual__">Manual entry</SelectItem>
-                    {agents?.map((a) => (
-                      <SelectItem key={a._id} value={a.name}>
-                        {a.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                    Source Agent
+                  </Label>
+                  <Select value={agentId} onValueChange={setAgentId}>
+                    <SelectTrigger
+                      className="w-full bg-[var(--bg-elevated)] border-[var(--glass-border)] text-[var(--text-primary)]"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
+                      <SelectValue placeholder="Manual entry" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[var(--bg-elevated)] border-[var(--glass-border)]">
+                      <SelectItem value="__manual__">Manual entry</SelectItem>
+                      {agents?.map((a) => (
+                        <SelectItem key={a._id} value={a.name}>
+                          {a.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <Separator className="bg-[var(--glass-border)]" />
 
               <DialogFooter>
-                <Button variant="outline" onClick={onClose}>
+                <Button variant="outline" onClick={() => { if (isEditing) setIsEditing(false); else onClose(); }}>
                   Cancel
                 </Button>
                 <Button variant="default" onClick={handleSubmit}>
-                  Save Memory
+                  {isEditing ? "Save Changes" : "Save Memory"}
                 </Button>
               </DialogFooter>
             </>

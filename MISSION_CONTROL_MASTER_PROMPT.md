@@ -16,6 +16,8 @@ Base URL: `https://tough-mastiff-574.convex.cloud`
 
 All endpoints accept JSON, return JSON, and have full CORS support.
 
+All POST endpoints return `{ "error": "..." }` with status 400 on bad JSON or validation errors.
+
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
 | `/api/tasks/list` | GET | List all tasks |
@@ -24,8 +26,12 @@ All endpoints accept JSON, return JSON, and have full CORS support.
 | `/api/tasks/remove` | POST | Delete a task `{ "id": "..." }` |
 | `/api/memory/list` | GET | List all memories |
 | `/api/memory/create` | POST | Create a memory entry |
+| `/api/memory/update` | POST | Update a memory `{ "id": "...", "title?": "...", "content?": "...", "tags?": [...] }` |
 | `/api/memory/remove` | POST | Delete a memory `{ "id": "..." }` |
+| `/api/memory/search` | POST | Search memories `{ "query": "...", "tag?": "...", "agentId?": "..." }` |
 | `/api/agents/list` | GET | List all agents |
+| `/api/agents/get` | GET | Get agent by ID `?id=...` |
+| `/api/agents/getByName` | GET | Get agent by name `?name=Axiom` |
 | `/api/agents/status` | POST | Update an agent's status |
 | `/api/calendar/list` | GET | List all calendar events |
 | `/api/calendar/create` | POST | Create a calendar event |
