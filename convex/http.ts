@@ -43,7 +43,7 @@ function postHandler(fn: (ctx: any, body: any) => Promise<unknown>) {
 const postRoutes = [
   "/api/tasks/create", "/api/tasks/update", "/api/tasks/remove",
   "/api/memory/create", "/api/memory/update", "/api/memory/remove", "/api/memory/search",
-  "/api/agents/status",
+  "/api/agents/status", "/api/agents/seed",
   "/api/calendar/create", "/api/calendar/update", "/api/calendar/remove",
   "/api/content/create", "/api/content/update", "/api/content/remove",
 ];
@@ -157,6 +157,12 @@ http.route({
   path: "/api/agents/status",
   method: "POST",
   handler: postHandler(async (ctx, body) => { await ctx.runMutation(api.agents.updateStatus, body); }),
+});
+
+http.route({
+  path: "/api/agents/seed",
+  method: "POST",
+  handler: postHandler(async (ctx) => { await ctx.runMutation(api.agents.seed, {}); }),
 });
 
 // ── CALENDAR ─────────────────────────────────────

@@ -32,6 +32,7 @@ All POST endpoints return `{ "error": "..." }` with status 400 on bad JSON or va
 | `/api/agents/list` | GET | List all agents |
 | `/api/agents/get` | GET | Get agent by ID `?id=...` |
 | `/api/agents/getByName` | GET | Get agent by name `?name=Axiom` |
+| `/api/agents/seed` | POST | Seed default agents (idempotent, no body needed) |
 | `/api/agents/status` | POST | Update an agent's status |
 | `/api/calendar/list` | GET | List all calendar events |
 | `/api/calendar/create` | POST | Create a calendar event |
