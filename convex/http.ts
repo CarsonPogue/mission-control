@@ -48,10 +48,10 @@ const postRoutes = [
   "/api/content/create", "/api/content/update", "/api/content/remove",
 ];
 const getRoutes = [
-  "/api/tasks/list",
+  "/api/tasks/list", "/api/tasks/getByStatus",
   "/api/memory/list",
   "/api/agents/list", "/api/agents/get", "/api/agents/getByName",
-  "/api/calendar/list",
+  "/api/calendar/list", "/api/calendar/getByDateRange",
   "/api/content/list",
 ];
 
@@ -65,6 +65,22 @@ http.route({
   path: "/api/tasks/list",
   method: "GET",
   handler: httpAction(async (ctx) => jsonResponse(await ctx.runQuery(api.tasks.list))),
+});
+
+http.route({
+  path: "/api/tasks/getByStatus",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    const url = new URL(request.url);
+    const status = url.searchParams.get("status");
+    if (!status) return jsonResponse({ error: "Missing status parameter" }, 400);
+    try {
+      const tasks = await ctx.runQuery(api.tasks.getByStatus, { status: status as any });
+      return jsonResponse(tasks);
+    } catch (e: any) {
+      return jsonResponse({ error: e.message ?? "Invalid status" }, 400);
+    }
+  }),
 });
 
 http.route({
@@ -171,6 +187,26 @@ http.route({
   path: "/api/calendar/list",
   method: "GET",
   handler: httpAction(async (ctx) => jsonResponse(await ctx.runQuery(api.calendar.list))),
+});
+
+http.route({
+  path: "/api/calendar/getByDateRange",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    const url = new URL(request.url);
+    const startTime = url.searchParams.get("startTime");
+    const endTime = url.searchParams.get("endTime");
+    if (!startTime || !endTime) return jsonResponse({ error: "Missing startTime or endTime parameter" }, 400);
+    try {
+      const events = await ctx.runQuery(api.calendar.getByDateRange, {
+        startTime: Number(startTime),
+        endTime: Number(endTime),
+      });
+      return jsonResponse(events);
+    } catch (e: any) {
+      return jsonResponse({ error: e.message ?? "Invalid parameters" }, 400);
+    }
+  }),
 });
 
 http.route({

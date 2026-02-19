@@ -21,6 +21,7 @@ All POST endpoints return `{ "error": "..." }` with status 400 on bad JSON or va
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
 | `/api/tasks/list` | GET | List all tasks |
+| `/api/tasks/getByStatus` | GET | Filter tasks by status `?status=todo` |
 | `/api/tasks/create` | POST | Create a new task |
 | `/api/tasks/update` | POST | Update an existing task |
 | `/api/tasks/remove` | POST | Delete a task `{ "id": "..." }` |
@@ -35,6 +36,7 @@ All POST endpoints return `{ "error": "..." }` with status 400 on bad JSON or va
 | `/api/agents/seed` | POST | Seed default agents (idempotent, no body needed) |
 | `/api/agents/status` | POST | Update an agent's status |
 | `/api/calendar/list` | GET | List all calendar events |
+| `/api/calendar/getByDateRange` | GET | Filter events by date range `?startTime=...&endTime=...` (unix ms) |
 | `/api/calendar/create` | POST | Create a calendar event |
 | `/api/calendar/update` | POST | Update a calendar event |
 | `/api/calendar/remove` | POST | Delete a calendar event `{ "id": "..." }` |
